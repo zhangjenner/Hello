@@ -1,4 +1,3 @@
-# Hello
-Hello World
+# fabric-study
+fabric的学习，研究，基于fabric-release-1.2版本
 
-This is a test!
