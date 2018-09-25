@@ -146,18 +146,18 @@ services:
       - CORE_PEER_ID=fabric-cli
       - CORE_PEER_ADDRESS=peer0.admin.com:7051
       - CORE_PEER_LOCALMSPID=AdminMSP
-      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/zhangjenner/chaincode/stock/src/crypto/peerOrganizations/admin.com/users/Admin@admin.com/msp
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/run/crypto/peerOrganizations/admin.com/users/Admin@admin.com/msp
       - CORE_PEER_TLS_ENABLED=false
-      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/zhangjenner/chaincode/stock/src/crypto/peerOrganizations/admin.com/tlsca/tlsca.admin.com-cert.pem
-    working_dir: /opt/gopath/src/github.com/zhangjenner/chaincode/stock/src
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/run/crypto/peerOrganizations/admin.com/tlsca/tlsca.admin.com-cert.pem
+    working_dir: /opt/gopath/run
     volumes:
-        - /home/zhangjenner/workspace/gopath/src/github.com/pkg:/opt/gopath/src/github.com/pkg
-        - /home/zhangjenner/workspace/gopath/src/github.com/golang:/opt/gopath/src/github.com/golang
-        - /home/zhangjenner/workspace/gopath/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger
-        - /home/zhangjenner/workspace/gopath/src/github.com/zhangjenner:/opt/gopath/src/github.com/zhangjenner
-        - ./script.sh:/opt/gopath/src/github.com/zhangjenner/chaincode/stock/src/script.sh
-        - ./crypto-config:/opt/gopath/src/github.com/zhangjenner/chaincode/stock/src/crypto
-        - ./channel-artifacts:/opt/gopath/src/github.com/zhangjenner/chaincode/stock/src/artifacts        
+        - ${GOPATH}/src/github.com/pkg:/opt/gopath/src/github.com/pkg
+        - ${GOPATH}/src/github.com/golang:/opt/gopath/src/github.com/golang
+        - ${GOPATH}/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger
+        - ${GOPATH}/src/github.com/jenner:/opt/gopath/src/github.com/jenner
+        - ./script.sh:/opt/gopath/run/script.sh
+        - ./crypto-config:/opt/gopath/run/crypto
+        - ./channel-artifacts:/opt/gopath/run/artifacts 
         
 #=============================================================================
   cc1:    
@@ -174,13 +174,13 @@ services:
       - CORE_PEER_ADDRESS=peer0.admin.com:7052
       - CORE_PEER_LOCALMSPID=AdminMSP
       - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/crypto/peerOrganizations/admin.com/peers/peer0.admin.com/msp
-    working_dir: /opt/gopath/src/github.com/zhangjenner/chaincode/stock/bin
+    working_dir: /opt/gopath/src/github.com/jenner/chaincode/stock/bin
     volumes:
-        - /home/zhangjenner/workspace/gopath/bin:/opt/gopath/src/github.com/zhangjenner/chaincode/stock/bin
-        - /home/zhangjenner/workspace/gopath/src/github.com/pkg:/opt/gopath/src/github.com/pkg
-        - /home/zhangjenner/workspace/gopath/src/github.com/golang:/opt/gopath/src/github.com/golang
-        - /home/zhangjenner/workspace/gopath/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger
-        - /home/zhangjenner/workspace/gopath/src/github.com/zhangjenner:/opt/gopath/src/github.com/zhangjenner
+        - ${GOPATH}/bin:/opt/gopath/src/github.com/jenner/chaincode/stock/bin
+        - ${GOPATH}/src/github.com/pkg:/opt/gopath/src/github.com/pkg
+        - ${GOPATH}/src/github.com/golang:/opt/gopath/src/github.com/golang
+        - ${GOPATH}/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger
+        - ${GOPATH}/src/github.com/jenner:/opt/gopath/src/github.com/jenner
         - ./crypto-config:/opt/gopath/src/crypto
     depends_on:
       - ord.orderer.com
@@ -200,13 +200,13 @@ services:
       - CORE_PEER_ADDRESS=peer0.user.com:7052
       - CORE_PEER_LOCALMSPID=AdminMSP
       - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/crypto/peerOrganizations/user.com/peers/peer0.user.com/msp
-    working_dir: /opt/gopath/src/github.com/zhangjenner/chaincode/stock/bin
+    working_dir: /opt/gopath/src/github.com/jenner/chaincode/stock/bin
     volumes:
-        - /home/zhangjenner/workspace/gopath/bin:/opt/gopath/src/github.com/zhangjenner/chaincode/stock/bin
-        - /home/zhangjenner/workspace/gopath/src/github.com/pkg:/opt/gopath/src/github.com/pkg
-        - /home/zhangjenner/workspace/gopath/src/github.com/golang:/opt/gopath/src/github.com/golang
-        - /home/zhangjenner/workspace/gopath/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger
-        - /home/zhangjenner/workspace/gopath/src/github.com/zhangjenner:/opt/gopath/src/github.com/zhangjenner
+        - ${GOPATH}/bin:/opt/gopath/src/github.com/jenner/chaincode/stock/bin
+        - ${GOPATH}/src/github.com/pkg:/opt/gopath/src/github.com/pkg
+        - ${GOPATH}/src/github.com/golang:/opt/gopath/src/github.com/golang
+        - ${GOPATH}/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger
+        - ${GOPATH}/src/github.com/jenner:/opt/gopath/src/github.com/jenner
         - ./crypto-config:/opt/gopath/src/crypto
     depends_on:
       - ord.orderer.com
@@ -226,13 +226,13 @@ services:
       - CORE_PEER_ADDRESS=peer1.user.com:7052
       - CORE_PEER_LOCALMSPID=AdminMSP
       - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/crypto/peerOrganizations/user.com/peers/peer1.user.com/msp
-    working_dir: /opt/gopath/src/github.com/zhangjenner/chaincode/stock/bin
+    working_dir: /opt/gopath/src/github.com/jenner/chaincode/stock/bin
     volumes:
-        - /home/zhangjenner/workspace/gopath/bin:/opt/gopath/src/github.com/zhangjenner/chaincode/stock/bin
-        - /home/zhangjenner/workspace/gopath/src/github.com/pkg:/opt/gopath/src/github.com/pkg
-        - /home/zhangjenner/workspace/gopath/src/github.com/golang:/opt/gopath/src/github.com/golang
-        - /home/zhangjenner/workspace/gopath/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger
-        - /home/zhangjenner/workspace/gopath/src/github.com/zhangjenner:/opt/gopath/src/github.com/zhangjenner
+        - ${GOPATH}/bin:/opt/gopath/src/github.com/jenner/chaincode/stock/bin
+        - ${GOPATH}/src/github.com/pkg:/opt/gopath/src/github.com/pkg
+        - ${GOPATH}/src/github.com/golang:/opt/gopath/src/github.com/golang
+        - ${GOPATH}/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger
+        - ${GOPATH}/src/github.com/jenner:/opt/gopath/src/github.com/jenner
         - ./crypto-config:/opt/gopath/src/crypto
     depends_on:
       - ord.orderer.com
