@@ -1,0 +1,58 @@
+./script.sh -c
+./script.sh -j
+./script.sh -i Admin stockcc 1.0 ./code/stockcc
+./script.sh -s Admin stockcc 1.0 ""
+
+./script.sh -i User stockcc 1.0 ./code/stockcc
+./script.sh -s User stockcc 1.0 ""
+
+＃用户管理
+18202860046
+17387808680
+18234287348
+18280276186
+----------------------------------
+./script.sh -v User Admin stockcc UserMg register '{\"user\":\"user1\",\"phone\":\"13412345678\",\"pwd\":\"user\"}'
+./script.sh -v User User1 stockcc UserMg register '{\"user\":\"user2\",\"phone\":\"1367557897\",\"pwd\":\"user\"}'
+./script.sh -v User User2 stockcc UserMg register '{\"user\":\"user3\",\"phone\":\"1486345656\",\"pwd\":\"user\"}'
+./script.sh -v User User3 stockcc UserMg register '{\"user\":\"user4\",\"phone\":\"1567456456\",\"pwd\":\"user\"}'
+./script.sh -v Admin Admin stockcc UserMg login '{\"phone\":\"18202860046\",\"pwd\":\"admin\"}'
+./script.sh -v User Admin stockcc UserMg login '{\"phone\":\"13412345678\",\"pwd\":\"user\"}'
+./script.sh -v Admin Admin stockcc UserMg query '{}'
+
+#新建超市
+----------------------------------
+./script.sh -v Admin Admin stockcc StockMg newSuperm '{\"num\":1001,\"name\":\"surpm1\",\"address\":\"chengdushi\",\"capital\":200,\"stock\":2000000}'
+./script.sh -v Admin Admin stockcc StockMg newSuperm '{\"num\":1002,\"name\":\"surpm2\",\"address\":\"nanjingshi\",\"capital\":500,\"stock\":5000000}'
+
+#股权占有查询
+----------------------------------
+./script.sh -v Admin Admin stockcc StockMg stockQuery '{\"owner\":\"18202860046\"}'
+./script.sh -v User Admin stockcc StockMg stockQuery '{\"owner\":\"13412345678\"}'
+
+#股权卖出操作
+----------------------------------
+./script.sh -v Admin Admin stockcc StockMg sellStock '{\"id\":3357038352,\"sellPhone\":\"18202860046\",\"sellStock\":1000000,\"sellPrice\":200,\"deadline\":1533585181}'
+./script.sh -v User Admin stockcc StockMg sellStock '{"\id\":974074664,\"sellPhone\":\"13412345678\",\"sellStock\":20000,\"sellPrice\":50,\"deadline\":1533585181}'
+
+#股权卖出查询
+----------------------------------
+./script.sh -v Admin Admin stockcc StockMg sellQuery '{\"type\":\"sell\",\"phone\":\"18202860046\"}'
+./script.sh -v User Admin stockcc StockMg sellQuery '{\"type\":\"buy\",\"phone\":\"13412345678\"}'
+
+#股权卖入操作
+----------------------------------
+./script.sh -v User Admin stockcc StockMg buyStock '{\"sellId\":3899752542,\"buyStock\":20000}'
+
+#股权卖出详情
+----------------------------------
+./script.sh -v Admin Admin stockcc StockMg sellDetial '{\"sellId\":3899752542}'
+
+#股权卖出确认
+----------------------------------
+./script.sh -v Admin Admin stockcc StockMg sellConfirm '{\"buyId\":1788303434}'
+
+#股权买卖记录
+----------------------------------
+./script.sh -v Admin Admin stockcc StockMg dealRecord '{\"owner\":\"18202860046\"}'
+./script.sh -v User Admin stockcc StockMg dealRecord '{\"owner\":\"13412345678\"}'
