@@ -1,0 +1,83 @@
+# This is the default base file to config env and command
+# All element in this file is abstract without knowing the org and consensus type
+# https://github.com/yeasy/docker-compose-files
+
+# Depends on the hyperledger/fabric-peer image.
+
+version: '2'
+
+services:
+  orderer-base:
+    image: hyperledger/fabric-orderer
+    #restart: always
+    environment:
+      #Msic
+      - ORDERER_GENERAL_LEDGERTYPE=file
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=7050
+      #TLS
+      - ORDERER_GENERAL_TLS_ENABLED=false
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      #Logging
+      - ORDERER_GENERAL_LOGLEVEL=DEBUG
+      - ORDERER_GENERAL_LOGFORMAT=%{color}[%{id:03x} %{time:01-02 15:04:05.00 MST}] [%{longpkg}] %{callpath} -> %{level:.4s}%{color:reset} %{message}
+      #Genesis
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/genesis.block
+      #MSP
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+    expose:
+      - "7050"
+    command: orderer start
+
+  peer-base:
+    image: hyperledger/fabric-peer
+    #restart: always
+    environment:
+      #Logging      
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_LOGGING_FORMAT=%{color}[%{id:03x} %{time:01-02 15:04:05.00 MST}] [%{longpkg}] %{callpath} -> %{level:.4s}%{color:reset} %{message}
+      #Peer      
+      - CORE_PEER_ADDRESSAUTODETECT=false
+      - CORE_PEER_PROFILE_ENABLED=false
+      #Peer.Gossip
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false 
+      #Peer.TLS      
+      - CORE_PEER_TLS_ENABLED=false
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      #VM
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=testnet_default
+      - CORE_VM_ENDPOINT=unix:///var/run/docker.sock
+      #Chaincode
+      - CORE_CHIANCODE_LOGGING_LEVEL=DEBUG
+      - CORE_CHIANCODE_LOGGING_FORMAT=%{color}[%{id:03x} %{time:01-02 15:04:05.00 MST}] [%{longpkg}] %{callpath} -> %{level:.4s}%{color:reset} %{message}
+      #Ledger
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=
+    expose:
+      - "7050"  # Rest
+      - "7051"  # Grpc
+      - "7052"  # Peer CLI
+      - "7053"  # Peer Event
+      - "7054"  # eCAP
+      - "7055"  # eCAA
+      - "7056"  # tCAP
+      - "7057"  # eCAA
+      - "7058"  # tlsCAP
+      - "7059"  # tlsCAA
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: peer node start
+    
+  couchdb-base:
+    image: hyperledger/fabric-couchdb
+    #restart: always
+    tty: true    
+  

@@ -1,0 +1,235 @@
+# All elements in this file should depend on the docker-base.yaml
+# Provided solo-base fabric network with:
+
+# ca.org1.example.com
+# ca.org2.example.com
+# orderer.example.com
+# peer0.org1.example.com
+# peer1.org1.example.com
+# peer0.org2.example.com
+# peer1.org2.example.com
+# cli
+
+version: '2'  # v3 does not support 'extends' yet
+
+services:
+#=============================================================================
+  ord.orderer.com:
+    extends:
+      file: docker-base.yaml
+      service: orderer-base
+    container_name: ord.orderer.com
+    ports:
+      - "7050:7050"
+    volumes:
+      - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/genesis.block
+      - ./crypto-config/ordererOrganizations/orderer.com/orderers/ord.orderer.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/orderer.com/orderers/ord.orderer.com/tls/:/var/hyperledger/orderer/tls
+
+#=============================================================================
+  peer0.banka.com:
+    extends:
+      file: docker-base.yaml
+      service: peer-base
+    container_name: peer0.banka.com
+    environment:
+      - CORE_PEER_ID=peer0.banka.com
+      - CORE_PEER_ADDRESS=peer0.banka.com:7051
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.banka.com:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.banka.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.banka.com:7051
+      - CORE_PEER_LOCALMSPID=BankAMSP
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0.banka.couchdb:5984
+    volumes:
+      - /var/hyperledger/peer0.banka.com:/var/hyperledger/production
+      - ./crypto-config/peerOrganizations/banka.com/peers/peer0.banka.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/banka.com/peers/peer0.banka.com/tls:/etc/hyperledger/fabric/tls
+    command: peer node start --peer-chaincodedev=true -o ord.orderer.com:7050
+    ports:
+      - "7051:7051"
+      - "7052:7052"
+      - "7053:7053"
+    depends_on:
+      - ord.orderer.com
+      - peer0.banka.couchdb
+
+  peer0.bankb.com:
+    extends:
+      file: docker-base.yaml
+      service: peer-base
+    container_name: peer0.bankb.com
+    environment:
+      - CORE_PEER_ID=peer0.bankb.com
+      - CORE_PEER_ADDRESS=peer0.bankb.com:7051
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.bankb.com:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.bankb.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.bankb.com:7051
+      - CORE_PEER_LOCALMSPID=BankBMSP
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0.bankb.couchdb:5984
+    volumes:
+      - /var/hyperledger/peer0.bankb.com:/var/hyperledger/production
+      - ./crypto-config/peerOrganizations/bankb.com/peers/peer0.bankb.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/bankb.com/peers/peer0.bankb.com/tls:/etc/hyperledger/fabric/tls
+    command: peer node start --peer-chaincodedev=true -o ord.orderer.com:7050
+    ports:
+      - "8051:7051"
+      - "8052:7052"
+      - "8053:7053"
+    depends_on:
+      - ord.orderer.com
+      - peer0.bankb.couchdb      
+      
+#==============================================================================      
+  peer0.banka.couchdb:
+    extends:
+      file: docker-base.yaml
+      service: couchdb-base
+    container_name: peer0.banka.couchdb
+    volumes:
+      - /var/hyperledger/peer0.banka.couchdb:/opt/couchdb/data
+    ports:
+      - "5984:5984"
+      
+  peer0.bankb.couchdb:
+    extends:
+      file: docker-base.yaml
+      service: couchdb-base
+    container_name: peer0.bankb.couchdb
+    volumes:
+      - /var/hyperledger/peer0.bankb.couchdb:/opt/couchdb/data
+    ports:
+      - "6984:5984"  
+      
+#=============================================================================
+  cli: 
+    image: hyperledger/fabric-tools
+    container_name: cli
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_PEER_ID=fabric-cli
+      - CORE_PEER_ADDRESS=peer0.banka.com:7051
+      - CORE_PEER_LOCALMSPID=BankAMSP
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/banka.com/users/Admin@banka.com/msp
+      - CORE_PEER_TLS_ENABLED=false
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/banka.com/tlsca/tlsca.banka.com-cert.pem
+    working_dir: /opt/gopath/src/github.com/jenner/chaincode/hycc/src
+    volumes:
+        - /home/jenner/gopath/src/github.com/pkg:/opt/gopath/src/github.com/pkg
+        - /home/jenner/gopath/src/github.com/golang:/opt/gopath/src/github.com/golang
+        - /home/jenner/gopath/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger  
+        - /home/jenner/gopath/src/github.com/jenner:/opt/gopath/src/github.com/jenner
+        - ./script.sh:/opt/gopath/src/github.com/jenner/chaincode/hycc/src/script.sh
+        - ./mytest.sh:/opt/gopath/src/github.com/jenner/chaincode/hycc/src/mytest.sh
+        - ./crypto-config:/opt/gopath/src/github.com/jenner/chaincode/hycc/src/crypto
+        - ./channel-artifacts:/opt/gopath/src/github.com/jenner/chaincode/hycc/src/artifacts        
+
+#=============================================================================
+  cc1:    
+    image: hyperledger/fabric-ccenv
+    container_name: cc1
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_CHAINCODE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cc1
+      - CORE_CHAINCODE_ID_NAME=pubsrv:1.0
+      - CORE_PEER_ADDRESS=peer0.banka.com:7052
+      - CORE_PEER_LOCALMSPID=BankAMSP
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/crypto/peerOrganizations/banka.com/peers/peer0.banka.com/msp
+    working_dir: /opt/gopath/src/github.com/jenner/chaincode/hycc/bin
+    volumes:
+        - /home/jenner/gopath/bin:/opt/gopath/src/github.com/jenner/chaincode/hycc/bin
+        - /home/jenner/gopath/src/github.com/pkg:/opt/gopath/src/github.com/pkg
+        - /home/jenner/gopath/src/github.com/golang:/opt/gopath/src/github.com/golang
+        - /home/jenner/gopath/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger
+        - /home/jenner/gopath/src/github.com/jenner:/opt/gopath/src/github.com/jenner
+        - ./crypto-config:/opt/gopath/src/crypto
+    depends_on:
+      - ord.orderer.com
+      - peer0.banka.com
+      - peer0.bankb.com
+      
+  cc2:    
+    image: hyperledger/fabric-ccenv
+    container_name: cc2
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_CHAINCODE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cc2
+      - CORE_CHAINCODE_ID_NAME=mycc:1.0
+      - CORE_PEER_ADDRESS=peer0.banka.com:7052
+      - CORE_PEER_LOCALMSPID=BankAMSP
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/crypto/peerOrganizations/banka.com/peers/peer0.banka.com/msp
+    working_dir: /opt/gopath/src/github.com/jenner/chaincode/hycc/bin
+    volumes:
+        - /home/jenner/gopath/bin:/opt/gopath/src/github.com/jenner/chaincode/hycc/bin
+        - /home/jenner/gopath/src/github.com/pkg:/opt/gopath/src/github.com/pkg
+        - /home/jenner/gopath/src/github.com/golang:/opt/gopath/src/github.com/golang
+        - /home/jenner/gopath/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger
+        - /home/jenner/gopath/src/github.com/jenner:/opt/gopath/src/github.com/jenner
+        - ./crypto-config:/opt/gopath/src/crypto
+    depends_on:
+      - ord.orderer.com
+      - peer0.banka.com
+      - peer0.bankb.com
+      
+  cc3:    
+    image: hyperledger/fabric-ccenv
+    container_name: cc3
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_CHAINCODE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cc3
+      - CORE_CHAINCODE_ID_NAME=mycc:1.0
+      - CORE_PEER_ADDRESS=peer0.banka.com:7052
+      - CORE_PEER_LOCALMSPID=BankAMSP
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/crypto/peerOrganizations/banka.com/peers/peer0.banka.com/msp
+    working_dir: /opt/gopath/src/github.com/jenner/chaincode/hycc/bin
+    volumes:
+        - /home/jenner/gopath/bin:/opt/gopath/src/github.com/jenner/chaincode/hycc/bin
+        - /home/jenner/gopath/src/github.com/pkg:/opt/gopath/src/github.com/pkg
+        - /home/jenner/gopath/src/github.com/golang:/opt/gopath/src/github.com/golang
+        - /home/jenner/gopath/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger
+        - /home/jenner/gopath/src/github.com/jenner:/opt/gopath/src/github.com/jenner
+        - ./crypto-config:/opt/gopath/src/crypto
+    depends_on:
+      - ord.orderer.com
+      - peer0.banka.com
+      - peer0.bankb.com
+      
+  cc4:    
+    image: hyperledger/fabric-ccenv
+    container_name: cc4
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_CHAINCODE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cc4
+      - CORE_CHAINCODE_ID_NAME=mycc:1.0
+      - CORE_PEER_ADDRESS=peer0.banka.com:7052
+      - CORE_PEER_LOCALMSPID=BankAMSP
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/crypto/peerOrganizations/banka.com/peers/peer0.banka.com/msp
+    working_dir: /opt/gopath/src/github.com/jenner/chaincode/hycc/bin
+    volumes:
+        - /home/jenner/gopath/bin:/opt/gopath/src/github.com/jenner/chaincode/hycc/bin
+        - /home/jenner/gopath/src/github.com/pkg:/opt/gopath/src/github.com/pkg
+        - /home/jenner/gopath/src/github.com/golang:/opt/gopath/src/github.com/golang
+        - /home/jenner/gopath/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger
+        - /home/jenner/gopath/src/github.com/jenner:/opt/gopath/src/github.com/jenner
+        - ./crypto-config:/opt/gopath/src/crypto
+    depends_on:
+      - ord.orderer.com
+      - peer0.banka.com
+      - peer0.bankb.com
+      
