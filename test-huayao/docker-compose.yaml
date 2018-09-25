@@ -1,0 +1,553 @@
+# All elements in this file should depend on the docker-base.yaml
+# Provided solo-base fabric network with:
+
+# ca.org1.example.com
+# ca.org2.example.com
+# orderer.example.com
+# peer0.org1.example.com
+# peer1.org1.example.com
+# peer0.org2.example.com
+# peer1.org2.example.com
+# cli
+
+version: '2'  # v3 does not support 'extends' yet
+
+services:
+#=============================================================================
+  ord.orderer.com:
+    extends:
+      file: docker-base.yaml
+      service: orderer-base
+    container_name: ord.orderer.com
+    ports:
+      - "7050:7050"
+    volumes:
+      - /var/hyperledger/ord.orderer.com:/var/hyperledger/production/orderer
+      - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/genesis.block
+      - ./crypto-config/ordererOrganizations/orderer.com/orderers/ord.orderer.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/orderer.com/orderers/ord.orderer.com/tls/:/var/hyperledger/orderer/tls
+    depends_on:
+      - kafka0
+      - kafka1
+      - kafka2
+      - kafka3
+    
+#=============================================================================
+  peer0.huayao.com:
+    extends:
+      file: docker-base.yaml
+      service: peer-base
+    container_name: peer0.huayao.com
+    environment:
+      - CORE_PEER_ID=peer0.huayao.com
+      - CORE_PEER_ADDRESS=peer0.huayao.com:7051
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.huayao.com:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.huayao.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.huayao.com:7051
+      - CORE_PEER_LOCALMSPID=HuaYaoMSP
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0.huayao.couchdb:5984
+    volumes:
+      - /var/hyperledger/peer0.huayao.com:/var/hyperledger/production
+      - ./crypto-config/peerOrganizations/huayao.com/peers/peer0.huayao.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/huayao.com/peers/peer0.huayao.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - "7051:7051"
+      - "7052:7052"
+      - "7053:7053"
+    depends_on:
+      - peer0.huayao.couchdb
+
+  peer1.huayao.com:
+    extends:
+      file: docker-base.yaml
+      service: peer-base
+    container_name: peer1.huayao.com
+    environment:
+      - CORE_PEER_ID=peer1.huayao.com
+      - CORE_PEER_ADDRESS=peer1.huayao.com:7051
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer1.huayao.com:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.huayao.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.huayao.com:7051
+      - CORE_PEER_LOCALMSPID=HuaYaoMSP
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer1.huayao.couchdb:5984
+    volumes:
+      - /var/hyperledger/peer1.huayao.com:/var/hyperledger/production
+      - ./crypto-config/peerOrganizations/huayao.com/peers/peer1.huayao.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/huayao.com/peers/peer1.huayao.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - "8051:7051"
+      - "8052:7052"
+      - "8053:7053"
+    depends_on:
+      - peer1.huayao.couchdb
+
+#=============================================================================
+  peer0.bank-a.com:
+    extends:
+      file: docker-base.yaml
+      service: peer-base
+    container_name: peer0.bank-a.com
+    environment:
+      - CORE_PEER_ID=peer0.bank-a.com
+      - CORE_PEER_ADDRESS=peer0.bank-a.com:7051
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.bank-a.com:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.bank-a.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.bank-a.com:7051
+      - CORE_PEER_LOCALMSPID=BankAMSP
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0.bank-a.couchdb:5984
+    volumes:
+      - /var/hyperledger/peer0.bank-a.com:/var/hyperledger/production
+      - ./crypto-config/peerOrganizations/bank-a.com/peers/peer0.bank-a.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/bank-a.com/peers/peer0.bank-a.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - "9051:7051"
+      - "9052:7052"
+      - "9053:7053"
+    depends_on:
+      - peer0.bank-a.couchdb
+
+  peer0.bank-b.com:
+    extends:
+      file: docker-base.yaml
+      service: peer-base
+    container_name: peer0.bank-b.com
+    environment:
+      - CORE_PEER_ID=peer0.bank-b.com
+      - CORE_PEER_ADDRESS=peer0.bank-b.com:7051
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.bank-b.com:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.bank-b.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.bank-b.com:7051
+      - CORE_PEER_LOCALMSPID=BankBMSP
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0.bank-b.couchdb:5984
+    volumes:
+      - /var/hyperledger/peer0.bank-b.com:/var/hyperledger/production
+      - ./crypto-config/peerOrganizations/bank-b.com/peers/peer0.bank-b.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/bank-b.com/peers/peer0.bank-b.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - "10051:7051"
+      - "10052:7052"
+      - "10053:7053"
+    depends_on:
+      - peer0.bank-b.couchdb
+      
+#=============================================================================
+  peer0.dryline-a.com:
+    extends:
+      file: docker-base.yaml
+      service: peer-base
+    container_name: peer0.dryline-a.com
+    environment:
+      - CORE_PEER_ID=peer0.dryline-a.com
+      - CORE_PEER_ADDRESS=peer0.dryline-a.com:7051
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.dryline-a.com:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.dryline-a.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.dryline-a.com:7051
+      - CORE_PEER_LOCALMSPID=DrylineAMSP
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0.dryline-a.couchdb:5984
+    volumes:
+      - /var/hyperledger/peer0.dryline-a.com:/var/hyperledger/production
+      - ./crypto-config/peerOrganizations/dryline-a.com/peers/peer0.dryline-a.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/dryline-a.com/peers/peer0.dryline-a.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - "11051:7051"
+      - "11052:7052"
+      - "11053:7053"
+    depends_on:
+      - peer0.dryline-a.couchdb
+
+  peer0.dryline-b.com:
+    extends:
+      file: docker-base.yaml
+      service: peer-base
+    container_name: peer0.dryline-b.com
+    environment:
+      - CORE_PEER_ID=peer0.dryline-b.com
+      - CORE_PEER_ADDRESS=peer0.dryline-b.com:7051
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.dryline-b.com:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.dryline-b.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.dryline-b.com:7051
+      - CORE_PEER_LOCALMSPID=DrylineBMSP
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0.dryline-b.couchdb:5984
+    volumes:
+      - /var/hyperledger/peer0.dryline-b.com:/var/hyperledger/production
+      - ./crypto-config/peerOrganizations/dryline-b.com/peers/peer0.dryline-b.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/dryline-b.com/peers/peer0.dryline-b.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - "12051:7051"
+      - "12052:7052"
+      - "12053:7053"
+    depends_on:
+      - peer0.dryline-b.couchdb
+      
+#=============================================================================
+  peer0.customer-a.com:
+    extends:
+      file: docker-base.yaml
+      service: peer-base
+    container_name: peer0.customer-a.com
+    environment:
+      - CORE_PEER_ID=peer0.customer-a.com
+      - CORE_PEER_ADDRESS=peer0.customer-a.com:7051
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.customer-a.com:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.customer-a.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.customer-a.com:7051
+      - CORE_PEER_LOCALMSPID=CustomerAMSP
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0.customer-a.couchdb:5984
+    volumes:
+      - /var/hyperledger/peer0.customer-a.com:/var/hyperledger/production
+      - ./crypto-config/peerOrganizations/customer-a.com/peers/peer0.customer-a.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/customer-a.com/peers/peer0.customer-a.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - "13051:7051"
+      - "13052:7052"
+      - "13053:7053"
+    depends_on:
+      - peer0.customer-a.couchdb
+
+  peer0.customer-b.com:
+    extends:
+      file: docker-base.yaml
+      service: peer-base
+    container_name: peer0.customer-b.com
+    environment:
+      - CORE_PEER_ID=peer0.customer-b.com
+      - CORE_PEER_ADDRESS=peer0.customer-b.com:7051
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.customer-b.com:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.customer-b.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.customer-b.com:7051
+      - CORE_PEER_LOCALMSPID=CustomerBMSP
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0.customer-b.couchdb:5984
+    volumes:
+      - /var/hyperledger/peer0.customer-b.com:/var/hyperledger/production
+      - ./crypto-config/peerOrganizations/customer-b.com/peers/peer0.customer-b.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/customer-b.com/peers/peer0.customer-b.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - "14051:7051"
+      - "14052:7052"
+      - "14053:7053"
+    depends_on:
+      - peer0.customer-b.couchdb
+      
+  peer0.customer-c.com:
+    extends:
+      file: docker-base.yaml
+      service: peer-base
+    container_name: peer0.customer-c.com
+    environment:
+      - CORE_PEER_ID=peer0.customer-c.com
+      - CORE_PEER_ADDRESS=peer0.customer-c.com:7051
+      - CORE_PEER_CHAINCODELISTENADDRESS=peer0.customer-c.com:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.customer-c.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.customer-c.com:7051
+      - CORE_PEER_LOCALMSPID=CustomerCMSP
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0.customer-c.couchdb:5984
+    volumes:
+      - /var/hyperledger/peer0.customer-c.com:/var/hyperledger/production
+      - ./crypto-config/peerOrganizations/customer-c.com/peers/peer0.customer-c.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/customer-c.com/peers/peer0.customer-c.com/tls:/etc/hyperledger/fabric/tls
+    ports:
+      - "15051:7051"
+      - "15052:7052"
+      - "15053:7053"
+    depends_on:
+      - peer0.customer-c.couchdb
+      
+#=============================================================================
+  zookeeper0:
+    extends:
+      file: docker-base.yaml
+      service: zookeeper-base
+    container_name: zookeeper0
+    hostname: zookeeper0
+    environment:
+      - ZOO_MY_ID=1
+      - ZOO_SERVERS=server.1=zookeeper0:2888:3888 server.2=zookeeper1:2888:3888 server.3=zookeeper2:2888:3888
+
+  zookeeper1:
+    extends:
+      file: docker-base.yaml
+      service: zookeeper-base
+    container_name: zookeeper1
+    hostname: zookeeper1
+    environment:
+      - ZOO_MY_ID=2
+      - ZOO_SERVERS=server.1=zookeeper0:2888:3888 server.2=zookeeper1:2888:3888 server.3=zookeeper2:2888:3888
+
+  zookeeper2:
+    extends:
+      file: docker-base.yaml
+      service: zookeeper-base
+    container_name: zookeeper2
+    hostname: zookeeper2
+    environment:
+      - ZOO_MY_ID=3
+      - ZOO_SERVERS=server.1=zookeeper0:2888:3888 server.2=zookeeper1:2888:3888 server.3=zookeeper2:2888:3888
+      
+#=============================================================================
+  kafka0:
+    extends:
+      file: docker-base.yaml
+      service: kafka-base
+    container_name: kafka0
+    hostname: kafka0
+    environment:
+      - KAFKA_BROKER_ID=0
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper0:2181,zookeeper1:2181,zookeeper2:2181
+    depends_on:
+      - zookeeper0
+      - zookeeper1
+      - zookeeper2
+
+  kafka1:
+    extends:
+      file: docker-base.yaml
+      service: kafka-base
+    container_name: kafka1
+    hostname: kafka1
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper0:2181,zookeeper1:2181,zookeeper2:2181
+    depends_on:
+      - zookeeper0
+      - zookeeper1
+      - zookeeper2
+
+  kafka2:
+    extends:
+      file: docker-base.yaml
+      service: kafka-base
+    container_name: kafka2
+    hostname: kafka2
+    environment:
+      - KAFKA_BROKER_ID=2
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper0:2181,zookeeper1:2181,zookeeper2:2181
+    depends_on:
+      - zookeeper0
+      - zookeeper1
+      - zookeeper2
+
+  kafka3:
+    extends:
+      file: docker-base.yaml
+      service: kafka-base
+    container_name: kafka3
+    hostname: kafka3
+    environment:
+      - KAFKA_BROKER_ID=3
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper0:2181,zookeeper1:2181,zookeeper2:2181
+    depends_on:
+      - zookeeper0
+      - zookeeper1
+      - zookeeper2
+      
+#=============================================================================
+  peer0.huayao.couchdb:
+    extends:
+      file: docker-base.yaml
+      service: couchdb-base
+    container_name: peer0.huayao.couchdb
+    volumes:
+      - /var/hyperledger/peer0.huayao.couchdb:/opt/couchdb/data
+    ports:
+      - "5984:5984"
+      
+  peer1.huayao.couchdb:
+    extends:
+      file: docker-base.yaml
+      service: couchdb-base
+    container_name: peer1.huayao.couchdb
+    volumes:
+      - /var/hyperledger/peer1.huayao.couchdb:/opt/couchdb/data
+    ports:
+      - "6984:5984" 
+      
+  peer0.bank-a.couchdb:
+    extends:
+      file: docker-base.yaml
+      service: couchdb-base
+    container_name: peer0.bank-a.couchdb
+    volumes:
+      - /var/hyperledger/peer0.bank-a.couchdb:/opt/couchdb/data
+    ports:
+      - "7984:5984"
+      
+  peer0.bank-b.couchdb:
+    extends:
+      file: docker-base.yaml
+      service: couchdb-base
+    container_name: peer0.bank-b.couchdb
+    volumes:
+      - /var/hyperledger/peer0.bank-b.couchdb:/opt/couchdb/data
+    ports:
+      - "8984:5984"
+      
+  peer0.dryline-a.couchdb:
+    extends:
+      file: docker-base.yaml
+      service: couchdb-base
+    container_name: peer0.dryline-a.couchdb
+    volumes:
+      - /var/hyperledger/peer0.dryline-a.couchdb:/opt/couchdb/data
+    ports:
+      - "9984:5984"
+      
+  peer0.dryline-b.couchdb:
+    extends:
+      file: docker-base.yaml
+      service: couchdb-base
+    container_name: peer0.dryline-b.couchdb
+    volumes:
+      - /var/hyperledger/peer0.dryline-b.couchdb:/opt/couchdb/data
+    ports:
+      - "10984:5984"
+      
+  peer0.customer-a.couchdb:
+    extends:
+      file: docker-base.yaml
+      service: couchdb-base
+    container_name: peer0.customer-a.couchdb
+    volumes:
+      - /var/hyperledger/peer0.customer-a.couchdb:/opt/couchdb/data
+    ports:
+      - "11984:5984"
+      
+  peer0.customer-b.couchdb:
+    extends:
+      file: docker-base.yaml
+      service: couchdb-base
+    container_name: peer0.customer-b.couchdb
+    volumes:
+      - /var/hyperledger/peer0.customer-b.couchdb:/opt/couchdb/data
+    ports:
+      - "12984:5984"
+      
+  peer0.customer-c.couchdb:
+    extends:
+      file: docker-base.yaml
+      service: couchdb-base
+    container_name: peer0.customer-c.couchdb
+    volumes:
+      - /var/hyperledger/peer0.customer-c.couchdb:/opt/couchdb/data
+    ports:
+      - "13984:5984"
+      
+#=============================================================================
+  fabric-cli: 
+    image: hyperledger/fabric-tools
+    container_name: fabric-cli
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_PEER_ID=fabric-cli
+      - CORE_PEER_ADDRESS=peer0.huayao.com:7051
+      - CORE_PEER_LOCALMSPID=HuaYaoMSP
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/huayao.com/users/Admin@huayao.com/msp
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/huayao.com/tlsca/tlsca.huayao.com-cert.pem
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer/
+    volumes:
+        - ./script.sh:/opt/gopath/src/github.com/hyperledger/fabric/peer/script.sh
+        - ./chaincode:/opt/gopath/src/github.com/hyperledger/fabric/peer/chaincode
+        - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/artifacts
+        - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto
+        
+#=============================================================================
+  cc1:    
+    image: hyperledger/fabric-ccenv
+    container_name: cc1
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_CHAINCODE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cc1
+      - CORE_CHAINCODE_ID_NAME=mycc:1.0
+      - CORE_PEER_ADDRESS=peer0.huayao.com:7052
+      - CORE_PEER_LOCALMSPID=BankAMSP
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/crypto/peerOrganizations/banka.com/peers/peer0.banka.com/msp
+    working_dir: /opt/gopath/src/github.com/jenner/chaincode/hycc/bin
+    volumes:
+        - /home/jenner/gopath/bin:/opt/gopath/src/github.com/jenner/chaincode/hycc/bin
+        - /home/jenner/gopath/src/github.com/pkg:/opt/gopath/src/github.com/pkg
+        - /home/jenner/gopath/src/github.com/golang:/opt/gopath/src/github.com/golang
+        - /home/jenner/gopath/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger
+        - /home/jenner/gopath/src/github.com/jenner:/opt/gopath/src/github.com/jenner
+        - ./crypto-config:/opt/gopath/src/crypto
+      
+  cc2:    
+    image: hyperledger/fabric-ccenv
+    container_name: cc2
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_CHAINCODE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cc2
+      - CORE_CHAINCODE_ID_NAME=mycc:1.0
+      - CORE_PEER_ADDRESS=peer0.huayao.com:7052
+      - CORE_PEER_LOCALMSPID=BankAMSP
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/crypto/peerOrganizations/banka.com/peers/peer0.banka.com/msp
+    working_dir: /opt/gopath/src/github.com/jenner/chaincode/hycc/bin
+    volumes:
+        - /home/jenner/gopath/bin:/opt/gopath/src/github.com/jenner/chaincode/hycc/bin
+        - /home/jenner/gopath/src/github.com/pkg:/opt/gopath/src/github.com/pkg
+        - /home/jenner/gopath/src/github.com/golang:/opt/gopath/src/github.com/golang
+        - /home/jenner/gopath/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger
+        - /home/jenner/gopath/src/github.com/jenner:/opt/gopath/src/github.com/jenner
+        - ./crypto-config:/opt/gopath/src/crypto
+      
+  cc3:    
+    image: hyperledger/fabric-ccenv
+    container_name: cc3
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_CHAINCODE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cc3
+      - CORE_CHAINCODE_ID_NAME=mycc:1.0
+      - CORE_PEER_ADDRESS=peer0.huayao.com:7052
+      - CORE_PEER_LOCALMSPID=BankAMSP
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/crypto/peerOrganizations/banka.com/peers/peer0.banka.com/msp
+    working_dir: /opt/gopath/src/github.com/jenner/chaincode/hycc/bin
+    volumes:
+        - /home/jenner/gopath/bin:/opt/gopath/src/github.com/jenner/chaincode/hycc/bin
+        - /home/jenner/gopath/src/github.com/pkg:/opt/gopath/src/github.com/pkg
+        - /home/jenner/gopath/src/github.com/golang:/opt/gopath/src/github.com/golang
+        - /home/jenner/gopath/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger
+        - /home/jenner/gopath/src/github.com/jenner:/opt/gopath/src/github.com/jenner
+        - ./crypto-config:/opt/gopath/src/crypto
+      
+  cc4:    
+    image: hyperledger/fabric-ccenv
+    container_name: cc4
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_CHAINCODE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cc4
+      - CORE_CHAINCODE_ID_NAME=mycc:1.0
+      - CORE_PEER_ADDRESS=peer0.huayao.com:7052
+      - CORE_PEER_LOCALMSPID=BankAMSP
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/crypto/peerOrganizations/banka.com/peers/peer0.banka.com/msp
+    working_dir: /opt/gopath/src/github.com/jenner/chaincode/hycc/bin
+    volumes:
+        - /home/jenner/gopath/bin:/opt/gopath/src/github.com/jenner/chaincode/hycc/bin
+        - /home/jenner/gopath/src/github.com/pkg:/opt/gopath/src/github.com/pkg
+        - /home/jenner/gopath/src/github.com/golang:/opt/gopath/src/github.com/golang
+        - /home/jenner/gopath/src/github.com/hyperledger:/opt/gopath/src/github.com/hyperledger
+        - /home/jenner/gopath/src/github.com/jenner:/opt/gopath/src/github.com/jenner
+        - ./crypto-config:/opt/gopath/src/crypto

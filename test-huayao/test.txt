@@ -1,0 +1,101 @@
+CORE_CHAINCODE_ID_NAME=pubcc:1.0 CORE_PEER_ADDRESS=peer0.banka.com:7052 ./pubcc
+./script.sh -c
+./script.sh -j
+./script.sh -i BankA pubcc 1.0 ./code/pubcc
+./script.sh -s BankA pubcc 1.0 ""
+
+./script.sh -i Admin stockcc 1.0 ./stockcc
+./script.sh -s Admin stockcc 1.0 ""
+
+CORE_CHAINCODE_ID_NAME=ordercc:1.0 CORE_PEER_ADDRESS=peer0.banka.com:7052 ./ordercc
+./script.sh -i BankA ordercc 1.0 ./code/ordercc
+./script.sh -s BankA ordercc 1.0 ""
+
+
+＃交易秘钥
+----------------------------------
+./script.sh -v BankA pubcc TKeyMg 111 new '{\"cid\":\"1\",\"sTime\":\"1514736000\",\"eTime\":\"1514750000\"}'
+./script.sh -v BankA pubcc TKeyMg 111 new '{\"cid\":\"2\",\"sTime\":\"1514736000\",\"eTime\":\"1514750000\"}'
+./script.sh -v BankA pubcc TKeyMg 111 new '{\"cid\":\"3\",\"sTime\":\"1514736000\",\"eTime\":\"1514750000\"}'
+
+./script.sh -v BankA pubcc TKeyMg 222 add '{\"cid\":\"1\",\"sTime\":\"1514740000\",\"eTime\":\"1514749999\"}'
+./script.sh -v BankA pubcc TKeyMg 222 add '{\"cid\":\"2\",\"sTime\":\"1514750000\",\"eTime\":\"1514759999\"}'
+./script.sh -v BankA pubcc TKeyMg 444 upg '{\"cid\":\"3\",\"sTime\":\"1514750000\",\"eTime\":\"1514769999\"}'
+
+./script.sh -v BankA pubcc TKeyMg 333 get '{\"cid\":\"1\"}'
+./script.sh -v BankA pubcc TKeyMg 555 qry '{\"cid\":\"1\",\"ts\":\"1514736888\",\"type\":\"pub\"}'
+./script.sh -v BankA pubcc TKeyMg 555 qry '{\"cid\":\"1\",\"ts\":\"1514736000\",\"type\":\"pri\"}'
+./script.sh -v BankA pubcc TKeyMg 666 adduser '{\"cid\":\"1\",\"uid\":\"1\"}'
+./script.sh -v BankA pubcc TKeyMg 666 adduser '{\"cid\":\"1\",\"uid\":\"2\"}'
+./script.sh -v BankA pubcc TKeyMg 888 deluser '{\"cid\":\"1\",\"uid\":\"1\"}'
+
+＃公司
+----------------------------------
+./script.sh -v BankA pubcc CompMg 111 add '{\"cts\":\"1514736000\",\"id\":\"1\",\"mspid\":\"msp1\",\"type\":2,\"username\":\"Comp1\"}'
+./script.sh -v BankA pubcc CompMg 222 add '{\"cts\":\"1514736000\",\"id\":\"2\",\"mspid\":\"msp2\",\"type\":2,\"username\":\"Comp2\"}'
+./script.sh -v BankA pubcc CompMg 333 add '{\"cts\":\"1514736000\",\"id\":\"3\",\"mspid\":\"msp3\",\"type\":2,\"username\":\"Comp3\"}'
+./script.sh -v BankA pubcc CompMg 444 del '{\"id\":\"3\"}'
+./script.sh -v BankA pubcc CompMg 555 upg '{\"id\":\"1\",\"username\":\"ttt\"}'
+./script.sh -v BankA pubcc CompMg 666 get '{\"id\":\"3\"}'
+./script.sh -v BankA pubcc CompMg 777 qry '{\"selector\":{\"type\":2}}'
+
+＃权限
+----------------------------------
+./script.sh -v BankA pubcc PermMg 111 add '{\"id\":\"1\",\"pid\":\"0\",\"permission\":\"perm1\"}'
+./script.sh -v BankA pubcc PermMg 222 add '{\"id\":\"2\",\"pid\":\"1\",\"permission\":\"perm2\"}'
+./script.sh -v BankA pubcc PermMg 333 add '{\"id\":\"3\",\"pid\":\"2\",\"permission\":\"perm3\"}'
+./script.sh -v BankA pubcc PermMg 444 del '{\"id\":\"3\"}'
+./script.sh -v BankA pubcc PermMg 555 upg '{\"id\":\"1\",\"permission\":\"admin2\"}'
+./script.sh -v BankA pubcc PermMg 666 get '{\"id\":\"1\"}'
+./script.sh -v BankA pubcc PermMg 777 qry '{\"selector\":{\"id\":\"1\"}}'
+
+＃鉴权
+----------------------------------
+./script.sh -v BankA pubcc AuthMg 111 add '{\"opt\":\"CompMg-add\",\"pexp\":\"perm1&&perm2\"}'
+./script.sh -v BankA pubcc AuthMg 222 upg '{\"opt\":\"CompMg-get\",\"pexp\":\"perm1&&perm2\"}'
+
+./script.sh -v BankA pubcc AuthMg add '{\"opt\":\"read\",\"pexp\":\"perm1\"}'
+./script.sh -v BankA pubcc AuthMg add '{\"opt\":\"write\",\"pexp\":\"perm2\"}'
+./script.sh -v BankA pubcc AuthMg add '{\"opt\":\"delete\",\"pexp\":\"perm1&&perm2\"}'
+./script.sh -v BankA pubcc AuthMg del '{\"opt\":\"read\"}'
+./script.sh -v BankA pubcc AuthMg upg '{\"opt\":\"read\",\"pexp\":\"perm1&perm2\"}'
+./script.sh -v BankA pubcc AuthMg get '{\"opt\":\"read\"}'
+./script.sh -v BankA pubcc AuthMg qry '{\"selector\":{\"opt\":\"read\"}}'
+
+＃角色
+----------------------------------
+./script.sh -v BankA pubcc RoleMg 111 add '{\"id\":\"1\",\"companyId\":\"1\",\"permIds\":[\"1\"],\"name\":\"role1\"}'
+./script.sh -v BankA pubcc RoleMg 222 add '{\"id\":\"2\",\"companyId\":\"2\",\"permIds\":[\"1\",\"2\"],\"name\":\"role2\"}'
+./script.sh -v BankA pubcc RoleMg 333 add '{\"id\":\"3\",\"companyId\":\"2\",\"permIds\":[\"1\",\"2\"],\"name\":\"role3\"}'
+./script.sh -v BankA pubcc RoleMg 444 del '{\"id\":\"3\"}'
+./script.sh -v BankA pubcc RoleMg 555 upg '{\"id\":\"1\",\"permIds\":[\"1\",\"2\"]}'
+./script.sh -v BankA pubcc RoleMg 666 get '{\"id\":\"1\"}'
+./script.sh -v BankA pubcc RoleMg 777 qry '{\"selector\":{\"id\":\"1\"}}'
+
+＃用户
+----------------------------------
+./script.sh -v BankA pubcc UserMg 111 add '{\"cts\":\"1514736000\",\"id\":\"1\",\"cid\":\"1\",\"roleIds\":[\"1\"],\"username\":\"user1\",\"mobile\":\"1234567890\",\"cert\":\"@#$%^&*()et\"}'
+./script.sh -v BankA pubcc UserMg 222 add '{\"cts\":\"1514736000\",\"id\":\"2\",\"cid\":\"2\",\"roleIds\":[\"2\"],\"username\":\"user2\",\"mobile\":\"abcdefghh\",\"cert\":\"JOFJS(EI\"}'
+./script.sh -v BankA pubcc UserMg 333 add '{\"cts\":\"1514736000\",\"id\":\"3\",\"cid\":\"2\",\"roleIds\":[\"2\"],\"username\":\"user3\",\"mobile\":\"hddey44434\",\"cert\":\":fke)o(o(\"}'
+./script.sh -v BankA pubcc UserMg 444 del '{\"id\":\"3\"}'
+./script.sh -v BankA pubcc UserMg 555 upg '{\"id\":\"1\",\"username\":\"tt\"}'
+./script.sh -v BankA pubcc UserMg 666 get '{\"id\":\"1\"}'
+./script.sh -v BankA pubcc UserMg 777 qry '{\"selector\":{\"cid\":\"1\"}}'
+
+#药品
+----------------------------------
+./script.sh -v BankA ordercc DrugMg 111 add '{\"id\":\"1\",\"code\":\"001\",\"name\":\"amxl\",\"spec\":\"12\",\"from\":\"JL\",\"unit\":1,\"trpspec\":\"100\",\"trpnum\":100,\"trpunit\":1,\"facname\":\"HY\",\"facbatch\":\"123\",\"facapp\":\"345\",\"facdata\":\"2018-1-1\",\"facvaild\":\"2018-1-20\"}'
+./script.sh -v BankA ordercc DrugMg 222 add '{\"id\":\"2\",\"code\":\"002\",\"name\":\"aspl\",\"spec\":\"12\",\"from\":\"JL\",\"unit\":1,\"trpspec\":\"100\",\"trpnum\":100,\"trpunit\":1,\"facname\":\"HY\",\"facbatch\":\"123\",\"facapp\":\"345\",\"facdata\":\"2018-1-1\",\"facvaild\":\"2018-1-20\"}'
+./script.sh -v BankA ordercc DrugMg 333 add '{\"id\":\"3\",\"code\":\"003\",\"name\":\"kcbj\",\"spec\":\"12\",\"from\":\"JL\",\"unit\":1,\"trpspec\":\"100\",\"trpnum\":100,\"trpunit\":1,\"facname\":\"HY\",\"facbatch\":\"123\",\"facapp\":\"345\",\"facdata\":\"2018-1-1\",\"facvaild\":\"2018-1-20\"}'
+./script.sh -v BankA ordercc DrugMg 444 del '{\"id\":\"1\"}'
+./script.sh -v BankA ordercc DrugMg 555 upg '{\"id\":\"1\",\"name\":\"fak\"}'
+./script.sh -v BankA ordercc DrugMg 666 get '{\"id\":\"1\"}'
+./script.sh -v BankA ordercc DrugMg 777 qry '{\"selector\":{\"id\":\"1\"}}'
+
+#异常
+----------------------------------
+./script.sh -v BankA ordercc ExceptMg 111 add '{\"id\":\"1\",\"ordercode\":\"1\",\"level\":1,\"type\":2}'
+
+#订单
+----------------------------------
+./script.sh -v BankA ordercc DrugMg 111 add '{\"id\":\"1\",\"code\":\"001\",\"name\":\"amxl\",\"spec\":\"12\",\"from\":\"JL\",\"unit\":1,\"trpspec\":\"100\",\"trpnum\":100,\"trpunit\":1,\"facname\":\"HY\",\"facbatch\":\"123\",\"facapp\":\"345\",\"facdata\":\"2018-1-1\",\"facvaild\":\"2018-1-20\"}'

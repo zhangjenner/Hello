@@ -1,0 +1,111 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+# ---------------------------------------------------------------------------
+# "OrdererOrgs" - Definition of organizations managing orderer nodes
+# ---------------------------------------------------------------------------
+OrdererOrgs:
+  # ---------------------------------------------------------------------------
+  #排序组织
+  - Name: Orderer
+    Domain: orderer.com
+    CA:
+      <<: *DefCA
+    Specs:
+      - Hostname: ord
+      
+# ---------------------------------------------------------------------------
+# "PeerOrgs" - Definition of organizations managing peer nodes
+# ---------------------------------------------------------------------------
+PeerOrgs:
+  # ---------------------------------------------------------------------------
+  #系统关管理
+  - Name: SysMg
+    Domain: sysmg.com
+    CA:
+      <<: *DefCA
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  # ---------------------------------------------------------------------------
+  #A物流组织
+  - Name: LogisA
+    Domain: logis-a.com
+    CA:
+      <<: *DefCA
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  # ---------------------------------------------------------------------------
+  #B物流组织
+  - Name: LogisB
+    Domain: logis-b.com
+    CA:
+      <<: *DefCA
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  # ---------------------------------------------------------------------------
+  #A干线组织
+  - Name: DrylineA
+    Domain: dryline-a.com
+    CA:
+      <<: *DefCA
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  # ---------------------------------------------------------------------------
+  #B干线组织
+  - Name: DrylineB
+    Domain: dryline-b.com
+    CA:
+      <<: *DefCA
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  # ---------------------------------------------------------------------------
+  #A客户组织
+  - Name: CustomerA
+    Domain: customer-a.com
+    CA:
+      <<: *DefCA
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  # ---------------------------------------------------------------------------
+  #B客户组织
+  - Name: CustomerB
+    Domain: customer-b.com
+    CA:
+      <<: *DefCA
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  # ---------------------------------------------------------------------------
+  #C客户组织
+  - Name: CustomerC
+    Domain: customer-c.com
+    CA:
+      <<: *DefCA
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+      
+# ---------------------------------------------------------------------------
+# "CA" - Definition of certificate authority
+# ---------------------------------------------------------------------------
+DefCA: &DefCA
+  Country: CN
+  Province: SiChuan
+  Locality: ChengDu
+      
